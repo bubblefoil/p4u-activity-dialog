@@ -11,5 +11,5 @@ The browser user script which enhances the Plus4U Activity dialogs.
 ## Installation
 * Install [Tampermonkey](https://tampermonkey.net), the user script manager
  extension into your browser. [Greasemonkey](https://www.greasespot.net) is not supported. 
-* Go to the script page at [openuserjs.org](https://openuserjs.org/scripts/bubblefoil/p4u-activity-dialog)
+* Go to the script page at [greasyfork.org](https://greasyfork.org/en/scripts/372738-p4u-activity-dialog) or [openuserjs.org](https://openuserjs.org/scripts/bubblefoil/p4u-activity-dialog)
 * There should be a button to install/update the user script
