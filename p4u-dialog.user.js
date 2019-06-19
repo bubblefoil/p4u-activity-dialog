@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         p4u-activity-dialog
 // @description  Keyboard shortcuts for P4U Activity dialogs
-// @version      1.1.0
+// @version      1.2.0
 // @namespace    https://plus4u.net/
 // @author       bubblefoil
 // @license      MIT
@@ -19,7 +19,19 @@
     }
      `);
 
+     /**
+      * Activates various Task list enhancments.
+      */
     function enhanceTable() {
+        //Table header sorting pop-up menu originally displays only on right click, which is counter-intuitive in a browser.
+        leftClickContextMenu();
+        //Activate keyboard shorcuts for the highlighted table row.
+        registerShortcuts();
+        //Artifact state dialog opens when double-clicking a table row.
+        registerDoubleClickStateChange();
+    }
+
+    function leftClickContextMenu() {
         const th1 = document.getElementById('listID_headcell_0');
         if (!th1) return;
 
@@ -32,6 +44,50 @@
                     c.oncontextmenu(e);
                 };
             });
+    }
+
+    function registerShortcuts() {
+        window.addEventListener("keydown", ev => {
+            if (ev.code === 'KeyS') {
+                console.debug('Trigger Artifact state change');
+                const row = getHighlightedTableRow();
+                if (row) {
+                    changeArticactState(row);
+                } else {
+                    console.debug('No Artifact is highlighted.')
+                }
+            }
+        });
+    }
+
+    function registerDoubleClickStateChange() {
+        const dbl = (ev) => {
+            console.log(ev);
+            changeArticactState(ev.currentTarget);
+        }
+        Array.from(document.querySelectorAll('tr.vcTableRow'))
+            .forEach(tr => { tr.addEventListener("dblclick", dbl); })
+    }
+
+    /**
+     * @returns (HTMLTableRowElement) row
+     */
+    function getHighlightedTableRow() {
+        return document.querySelector('tr.vcTableRow.Actual');
+    }
+
+    /**
+     * @param row (HTMLTableRowElement) - Table row
+     */
+    function changeArticactState(row) {
+        if (row && !!(row.cells)) {
+            const a = row.cells[5].querySelector('a');
+            if (a) {
+                a.click();
+            } else {
+                console.error('Cannot trigger Artifact state change. Wrong element: ', row);
+            }
+        }
     }
 
     const onFrameLoaded = function (iframe) {
@@ -75,6 +131,6 @@
         });
     });
 
-    observer.observe(document.body, {childList: true, subtree: true});
+    observer.observe(document.body, { childList: true, subtree: true });
     enhanceTable();
 })();
