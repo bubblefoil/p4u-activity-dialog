@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         p4u-activity-dialog
 // @description  Keyboard shortcuts for P4U Activity dialogs
-// @version      1.2.0
+// @version      1.2.1
 // @namespace    https://plus4u.net/
 // @author       bubblefoil
 // @license      MIT
