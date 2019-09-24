@@ -65,7 +65,7 @@
             console.log(ev);
             changeArticactState(ev.currentTarget);
         }
-        Array.from(document.querySelectorAll('tr.vcTableRow'))
+        Array.from(document.getElementById('listID').querySelectorAll('tbody > tr'))
             .forEach(tr => { tr.addEventListener("dblclick", dbl); })
     }
 
@@ -73,7 +73,7 @@
      * @returns (HTMLTableRowElement) row
      */
     function getHighlightedTableRow() {
-        return document.querySelector('tr.vcTableRow.Actual');
+        return document.getElementById('listID').querySelector('tbody > tr.Actual');
     }
 
     /**
