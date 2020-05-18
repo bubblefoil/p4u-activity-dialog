@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         p4u-activity-dialog
 // @description  Keyboard shortcuts for P4U Activity dialogs
-// @version      1.2.1
+// @version      1.3.1
 // @namespace    https://plus4u.net/
 // @author       bubblefoil
 // @license      MIT
@@ -19,9 +19,9 @@
     }
      `);
 
-     /**
-      * Activates various Task list enhancments.
-      */
+    /**
+     * Activates various Task list enhancments.
+     */
     function enhanceTable() {
         //Table header sorting pop-up menu originally displays only on right click, which is counter-intuitive in a browser.
         leftClickContextMenu();
@@ -31,19 +31,28 @@
         registerDoubleClickStateChange();
     }
 
+    /**
+     * Activate Artifact Page enhancements, like buttons for flipping pages within an Artifact
+     */
+    function enhanceArtifactPage() {
+        addListButtons();
+    }
+
     function leftClickContextMenu() {
         const th1 = document.getElementById('listID_headcell_0');
-        if (!th1) return;
+        if (!th1) {
+            return;
+        }
 
         Array
-            .from(th1.parentElement.cells)
-            .slice(1, 5)//drop first and last cols
-            .forEach(c => {
-                c.classList.add('p4u-ext-clickable');
-                c.onclick = function (e) {
-                    c.oncontextmenu(e);
-                };
-            });
+        .from(th1.parentElement.cells)
+        .slice(1, 5)//drop first and last cols
+        .forEach(c => {
+            c.classList.add('p4u-ext-clickable');
+            c.onclick = function (e) {
+                c.oncontextmenu(e);
+            };
+        });
     }
 
     function registerShortcuts() {
@@ -52,7 +61,7 @@
                 console.debug('Trigger Artifact state change');
                 const row = getHighlightedTableRow();
                 if (row) {
-                    changeArticactState(row);
+                    changeArtifactState(row);
                 } else {
                     console.debug('No Artifact is highlighted.')
                 }
@@ -61,25 +70,61 @@
     }
 
     function registerDoubleClickStateChange() {
-        const dbl = (ev) => {
-            console.log(ev);
-            changeArticactState(ev.currentTarget);
+        if (getTableEnvelope()) {
+            const dbl = (ev) => {
+                console.log(ev);
+                changeArtifactState(ev.currentTarget);
+            }
+            Array.from(getTableEnvelope().querySelectorAll('tbody > tr'))
+            .forEach(tr => {
+                tr.addEventListener("dblclick", dbl);
+            })
         }
-        Array.from(document.getElementById('listID').querySelectorAll('tbody > tr'))
-            .forEach(tr => { tr.addEventListener("dblclick", dbl); })
+    }
+
+    function addListButtons() {
+        let selectedPageLi = document.querySelector('#ues-ctrlbar-artMenubar-artObjects-ul li.menuSelected');
+        let artifactHorizontalMenuUl = document.getElementById('ues-ctrlbar-artMenubar-artObjects-ul');
+        if (selectedPageLi && artifactHorizontalMenuUl) {
+            if (selectedPageLi.nextSibling) {
+                let newChild = listMenuItemToPageLink(selectedPageLi.nextSibling, '>');
+                artifactHorizontalMenuUl.insertBefore(
+                    newChild,
+                    artifactHorizontalMenuUl.firstChild.nextSibling)
+            }
+            if (selectedPageLi.previousSibling) {
+                artifactHorizontalMenuUl.insertBefore(
+                    listMenuItemToPageLink(selectedPageLi.previousSibling, '<'),
+                    artifactHorizontalMenuUl.firstChild)
+            }
+        }
+    }
+
+    function listMenuItemToPageLink(liNode, linkText) {
+        let linkNode = liNode.cloneNode(true);
+        let menuTextDiv = linkNode.querySelector('div.menuText');
+        let pageName = menuTextDiv.innerText;
+        menuTextDiv.innerText = linkText;
+        linkNode.title = pageName;
+        return linkNode;
+    }
+
+    function getTableEnvelope() {
+        return document.getElementById('listID');
     }
 
     /**
      * @returns (HTMLTableRowElement) row
      */
     function getHighlightedTableRow() {
-        return document.getElementById('listID').querySelector('tbody > tr.Actual');
+        let listElement = getTableEnvelope();
+        return listElement && listElement.querySelector('tbody > tr.Actual');
     }
 
     /**
      * @param row (HTMLTableRowElement) - Table row
      */
-    function changeArticactState(row) {
+    function changeArtifactState(row) {
         if (row && !!(row.cells)) {
             const a = row.cells[5].querySelector('a');
             if (a) {
@@ -133,4 +178,5 @@
 
     observer.observe(document.body, { childList: true, subtree: true });
     enhanceTable();
+    enhanceArtifactPage();
 })();
